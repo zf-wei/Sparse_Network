@@ -59,7 +59,7 @@ def comprehensive_process(mu, graph_type, epsilon=0.1):
         Effective_R = Gn.effR(epsilon, 'spl')
 
         while True:
-            Gn_Sparse = Gn.spl(10000, Effective_R, seed=2024)
+            Gn_Sparse = Gn.spl(10000, Effective_R, seed=2024) # 第一个参数是 q 是保留的边的数量
             G_sparse = to_networkx(Gn_Sparse)
             if nx.is_connected(G_sparse):
                 break
