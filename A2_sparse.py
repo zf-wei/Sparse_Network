@@ -19,10 +19,10 @@ sys.path.append(os.path.join(os.path.join(current_dir), 'utilities'))
 from utilities.tools import *
 
 
-def sparse_lfr_graph_mu(mu, graph_type, epsilon=0.1, output_dir='graph_sparse'):
+def sparse_graph_mu(mu, graph_type, epsilon=0.1, output_dir='graph_sparse'):
     """Process a specific mixing parameter (mu) to calculate scores and quadratic forms."""
     graphs, memberships = load_graph(mu, graph_type)
-    sample = 3#len(graphs)
+    sample = len(graphs)
 
     graph_sparse = []
 
@@ -65,7 +65,7 @@ def sparse_lfr_graph_mu(mu, graph_type, epsilon=0.1, output_dir='graph_sparse'):
     print(f'Saved all graphs and memberships for mu={mu} to {file_path}')
 
 
-# Generate LFR graphs in parallel using ProcessPoolExecutor
+# Compute in parallel using ProcessPoolExecutor
 from concurrent.futures import ProcessPoolExecutor
 
 if __name__ == "__main__":
@@ -87,7 +87,7 @@ if __name__ == "__main__":
 
 
     def process_mu(mu):
-        return sparse_lfr_graph_mu(mu, graph_type)
+        return sparse_graph_mu(mu, graph_type)
 
     with ProcessPoolExecutor(max_workers=num_workers) as executor:
         results = list(executor.map(process_mu, MU))
