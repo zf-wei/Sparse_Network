@@ -4,6 +4,8 @@ import sys
 import pickle
 import numpy as np
 import networkx as nx
+import random
+from networkx.generators.community import LFR_benchmark_graph
 
 sys.stdout.flush()
 
@@ -12,6 +14,7 @@ num_workers = 2#0
 
 # 将子目录添加到 sys.path
 current_dir = os.getcwd()
+
 sys.path.append(os.path.join(os.path.join(current_dir), 'EffectiveResistanceSampling'))
 from EffectiveResistanceSampling.Network import *
 
@@ -19,44 +22,50 @@ sys.path.append(os.path.join(os.path.join(current_dir), 'utilities'))
 from utilities.tools import *
 
 
-def sparse_graph_mu(mu, graph_type, epsilon=0.1, output_dir='graph_sparse'):
-    """Process a specific mixing parameter (mu) to get sparsed graphs."""
-    graphs, memberships = load_graph(mu, graph_type)
-    sample = len(graphs)
 
-    graph_sparse = []
+def remove_edges_with_retry(graph, percentage):
+    num_edges = graph.number_of_edges()
+    num_remove = int(percentage * num_edges)
+
+    while True:
+        print("trying...")
+        # 创建副本以避免对原始图进行操作
+        temp_graph = graph.copy()
+
+        # 随机选择要删除的边
+        edges = list(temp_graph.edges())
+        edges_to_remove = random.sample(edges, num_remove)
+
+        # 删除选中的边
+        temp_graph.remove_edges_from(edges_to_remove)
+
+        # 检查图是否连通
+        if nx.is_connected(temp_graph):
+            return temp_graph  # 返回连通的图
+
+def random_graph_mu(mu, graph_type, output_dir='graph_random'):
+    """Process a specific mixing parameter (mu) to get graphs with some edges randomly deleted."""
+    graphs, memberships = load_graph(mu, graph_type)
+    sample = 3#len(graphs)
+
+    graph_random = []
 
     for i in range(sample):
         G = graphs[i]
 
-        edge_list = list(G.edges())
-        edge_list = np.array(edge_list)
+        G_random = remove_edges_with_retry(G)
 
-        edge_weights = nx.get_edge_attributes(G, 'weight')
-        edge_weights = np.array(edge_weights)
-        edge_weights = np.array([edge_weights[edge] if edge in edge_weights else 1 for edge in edge_list])
-
-        Gn = Network(edge_list, edge_weights)
-        Effective_R = Gn.effR(epsilon, 'spl')
-
-        while True:
-            Gn_Sparse = Gn.spl(int(G.number_of_edges() * 0.9), Effective_R, seed=2024)  # 第一个参数是 q 是保留的边的数量
-            G_sparse = to_networkx(Gn_Sparse)
-            if nx.is_connected(G_sparse):
-                break
-
-        print(i)
-        graph_sparse.append(G_sparse)
+        graph_random.append(G_random)
 
     # Save all graphs and memberships into a single file
     combined_data = {
-        'graphs': graph_sparse,
+        'graphs': graph_random,
     }
 
     os.makedirs(output_dir, exist_ok=True)
 
     mu_str = f"{mu:.2f}"
-    file_path = os.path.join(output_dir, f'{graph_type}_graph_sparse_mu{mu_str}.pickle')
+    file_path = os.path.join(output_dir, f'{graph_type}_graph_random_mu{mu_str}.pickle')
     with open(file_path, 'wb') as file:
         pickle.dump(combined_data, file)
 
@@ -67,7 +76,7 @@ def sparse_graph_mu(mu, graph_type, epsilon=0.1, output_dir='graph_sparse'):
 from concurrent.futures import ProcessPoolExecutor
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Get a sparse version of the graph.")
+    parser = argparse.ArgumentParser(description="Delete some edges randomly from graph.")
     parser.add_argument('--graph_type', type=str, choices=['ppm', 'lfr'], default='ppm',
                         help="Random graph type (ppm or lfr)")
     parser.add_argument('--start_step', type=float, default=0.05, help="start_step")
@@ -85,7 +94,7 @@ if __name__ == "__main__":
 
 
     def process_mu(mu):
-        return sparse_graph_mu(mu, graph_type)
+        return random_graph_mu(mu, graph_type)
 
     with ProcessPoolExecutor(max_workers=num_workers) as executor:
         results = list(executor.map(process_mu, MU))
