@@ -17,4 +17,4 @@ source /share/apps/python/miniconda4.12/etc/profile.d/conda.sh
 conda activate iub  # 激活名为 "test" 的 Conda 环境
 
 # 运行 Python 脚本
-srun python A_lfr_gen.py
+srun python A1_lfr_gen.py
