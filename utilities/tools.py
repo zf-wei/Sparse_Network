@@ -5,9 +5,6 @@ import pickle
 import networkx as nx
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import normalize
-from sklearn.metrics import normalized_mutual_info_score
-import clusim.sim as sim
-from clusim.clustering import Clustering
 
 # 获取当前目录的上一级目录
 # parent_dir = os.path.abspath(os.path.join(os.getcwd(), '..'))
@@ -38,25 +35,6 @@ def get_cosine_membership(K, points):
     cos_kmeans = KMeans(n_clusters=K, n_init=10)
     cos_kmeans.fit(normalized_points)
     return cos_kmeans.labels_
-
-
-def calculate_score(evala, intr_list, K):
-    """Calculate scores for clustering using NMI and ECSim."""
-    return_val = []
-    intr_clus = Clustering({i: [intr_list[i]] for i in range(len(intr_list))})
-    evala_euclid_membership = get_euclid_membership(K, evala)
-    evala_cosine_membership = get_cosine_membership(K, evala)
-
-    return_val.append(normalized_mutual_info_score(evala_euclid_membership, intr_list, average_method='arithmetic'))
-    return_val.append(normalized_mutual_info_score(evala_cosine_membership, intr_list, average_method='arithmetic'))
-
-    evala_euclid_clustering = Clustering({i: [evala_euclid_membership[i]] for i in range(len(evala_euclid_membership))})
-    evala_cosine_clustering = Clustering({i: [evala_cosine_membership[i]] for i in range(len(evala_cosine_membership))})
-
-    return_val.append(sim.element_sim(intr_clus, evala_euclid_clustering, alpha=0.9))
-    return_val.append(sim.element_sim(intr_clus, evala_cosine_clustering, alpha=0.9))
-
-    return return_val
 
 
 def load_graph(mu, rg, delete_type='original'):
