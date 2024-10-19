@@ -2,8 +2,8 @@
 
 #SBATCH --job-name=ppm_gen             # 任务名称
 #SBATCH --partition=slurm                         # 分区
-#SBATCH --output=A_ppm_gen_out_%j.txt        # 标准输出文件
-#SBATCH --error=A_ppm_gen_err_%j.txt          # 错误输出文件
+#SBATCH --output=A1_ppm_gen_out_%j.txt        # 标准输出文件
+#SBATCH --error=A1_ppm_gen_err_%j.txt          # 错误输出文件
 #SBATCH --mail-type=ALL                           # 邮件通知类型
 #SBATCH --mail-user=zfwei@pnnl.gov                # 邮件通知接收者
 #SBATCH --nodes=1                                 # 使用1个节点

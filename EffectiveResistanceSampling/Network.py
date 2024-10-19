@@ -145,6 +145,12 @@ class Network:
         E_list, weights = er.Mtrx_Elist(spl_net)
         return Network(E_list, weights)
 
+    def spl_W(self, q, effR, seed=None):
+        spl_net = spl.Spl_EffRSparse_W(n=self.graph.shape[0], E_list=self.E_list, weights=self.weights, q=q, effR=effR,
+                                     seed=seed)
+        E_list, weights = er.Mtrx_Elist(spl_net)
+        return Network(E_list, weights)
+
     def uni(self, q, seed=None):
         uni_net = spl.UniSampleSparse(n=self.graph.shape[0], E_list=self.E_list, weights=self.weights, q=q, seed=seed)
         E_list, weights = er.Mtrx_Elist(uni_net)

@@ -10,7 +10,7 @@
 #SBATCH --ntasks-per-node=1                       # 每个节点执行1个任务
 #SBATCH --cpus-per-task=2                        # 每个任务使用16个CPU 
 #SBATCH -t 1:00:00                               # 任务最长执行时间为2小时
-#SBATCH -A ascr_dpdf                              # 指定账户
+#SBATCH -A br25_weiz828                              # 指定账户
 
 # 加载 Python 环境
 source /share/apps/python/miniconda4.12/etc/profile.d/conda.sh

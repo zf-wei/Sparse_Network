@@ -64,6 +64,37 @@ def Spl_EffRSparse(n, E_list, weights, q, effR, seed=None):
         H[e[0]][e[1]] += w_e / (q * p_e)
     return H + np.transpose(H)
 
+# Create a effective resistance sparsifer
+# W代表是魏志峰写的无放回抽样
+# From Spielman and Srivastava 2008
+# Input:
+# adj - Adj matrix
+# q - number of samples
+# R - Matrix of effective resistances (other types of edge importance in the future, possibly)
+# Output:
+# H - effective resistance sparsifer adj matrix
+def weighted_sample_without_replacement(E_list, weights, Pn, k, seed=None):
+    """ 根据给定的概率Pn进行无放回加权抽样 """
+    if seed is not None:
+        np.random.seed(seed)  # 设置随机种子
+    
+    indices = np.arange(len(E_list))  # 边的索引列表
+    chosen_indices = np.random.choice(indices, size=k, replace=False, p=Pn)  # 无放回抽样
+    return [(E_list[i], weights[i], Pn[i]) for i in chosen_indices]
+def Spl_EffRSparse_W(n, E_list, weights, q, effR, seed=None):
+    P = []
+    for i in range(len(E_list)):
+        w_e = weights[i]
+        R_e = effR[i]
+        P.append((w_e * R_e) / (n - 1))
+    Pn = np.array(normprobs(P))
+    C = weighted_sample_without_replacement(E_list, weights, Pn, k=q, seed=seed)
+    H = np.zeros(shape=(n, n))
+    for x in range(q):
+        e, w_e, p_e = C[x][0], C[x][1], C[x][2]
+        H[e[0]][e[1]] += w_e / (q * p_e)
+    return H + np.transpose(H)
+
 
 # Create a effective resistance sparsifer with sparse matrix
 # From Spielman and Srivastava 2008

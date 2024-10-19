@@ -5,20 +5,20 @@ import pickle
 import numpy as np
 import networkx as nx
 import random
-from networkx.generators.community import LFR_benchmark_graph
+
 
 sys.stdout.flush()
 
-num_workers = 5#0
+num_workers = 10
 #sample_count = 3
 
 # 将子目录添加到 sys.path
 current_dir = os.getcwd()
 
-sys.path.append(os.path.join(os.path.join(current_dir), 'EffectiveResistanceSampling'))
-from EffectiveResistanceSampling.Network import *
+#sys.path.append(os.path.join(current_dir, 'EffectiveResistanceSampling'))
+#from EffectiveResistanceSampling.Network import *
 
-sys.path.append(os.path.join(os.path.join(current_dir), 'utilities'))
+sys.path.append(os.path.join(current_dir, 'utilities'))
 from utilities.tools import *
 
 def remove_edges_with_retry(graph, percentage):
@@ -43,7 +43,7 @@ def remove_edges_with_retry(graph, percentage):
 
 def random_graph_mu(mu, graph_type, output_dir='graph_random'):
     """Process a specific mixing parameter (mu) to get graphs with some edges randomly deleted."""
-    graphs, memberships = load_graph(mu, graph_type, "original")
+    graphs = load_graph_only(mu, graph_type, "original")
     sample = len(graphs)
 
     graph_random = []

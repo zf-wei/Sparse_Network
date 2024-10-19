@@ -7,7 +7,7 @@ import networkx as nx
 
 sys.stdout.flush()
 
-num_workers = 2#0
+num_workers = 10
 #sample_count = 3
 
 # 将子目录添加到 sys.path
@@ -21,8 +21,9 @@ from utilities.tools import *
 
 def sparse_graph_mu(mu, graph_type, epsilon=0.1, output_dir='graph_sparse'):
     """Process a specific mixing parameter (mu) to get sparsed graphs."""
-    graphs, memberships = load_graph(mu, graph_type, "original")
+    graphs = load_graph_only(mu, graph_type, "original")
     sample = len(graphs)
+    q_values = {"lfr": 46000, "ppm": 30000}
 
     graph_sparse = []
 
@@ -40,7 +41,7 @@ def sparse_graph_mu(mu, graph_type, epsilon=0.1, output_dir='graph_sparse'):
         Effective_R = Gn.effR(epsilon, 'spl')
 
         while True:
-            Gn_Sparse = Gn.spl(int(G.number_of_edges() * 0.9), Effective_R, seed=2024)  # 第一个参数是 q 是保留的边的数量
+            Gn_Sparse = Gn.spl(q_values[graph_type], Effective_R, seed=2024)  # 第一个参数是 q 是边有放回抽样的数量
             G_sparse = to_networkx(Gn_Sparse)
             if nx.is_connected(G_sparse):
                 break
@@ -60,7 +61,7 @@ def sparse_graph_mu(mu, graph_type, epsilon=0.1, output_dir='graph_sparse'):
     with open(file_path, 'wb') as file:
         pickle.dump(combined_data, file)
 
-    print(f'Saved all graphs for mu={mu} to {file_path}')
+    print(f'Saved all sparse graphs for mu={mu} to {file_path}')
 
 
 # Compute in parallel using ProcessPoolExecutor
