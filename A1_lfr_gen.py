@@ -58,6 +58,7 @@ def gene_lfr_graph_mu(mu, sample_count=sample_count, output_dir='graph'):
                     intrinsic_membership[node] = index
                     break
         intrinsic_membership = list(intrinsic_membership.values())
+        intrinsic_membership = np.array(intrinsic_membership)
 
         # Append the graph and membership to the lists
         graphs.append(G)

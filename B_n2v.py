@@ -51,12 +51,18 @@ def community_detection(mu, graph_type, delete_type):
         node2vec_fit_original = node2vec_original.fit(window=window, min_count=min_count, batch_words=batch_words) 
         embedding = np.array([node2vec_fit_original.wv[node] for node in nodes])
 
-        detected_euclid_memberships.append(euclid_membership(K, embedding))
-        detected_cosine_memberships.append(cosine_membership(K, embedding))
+        detected_euclid_memberships.append(get_euclid_membership(K, embedding))
+        detected_cosine_memberships.append(get_cosine_membership(K, embedding))
 
         # Potential optimization of the quadratic form calculation using CuPy
-        quadratic_form = cp.sum(A * cp.sum((embedding[:, :, None] - embedding[:, None, :]) ** 2, axis=1))
-        raw_qf_mu[i] = quadratic_form
+        quadratic_form_original = 0
+        for k in range(embedding.shape[1]):
+            vk = embedding[:, k]
+            diff = vk[:, np.newaxis] - vk[np.newaxis, :]  # 创建一个差的矩阵
+            quadr = A * (diff ** 2)  # 使用广播计算二次项
+            quadratic_form_original += np.sum(quadr)  # 累加
+
+        raw_qf_mu[i] = quadratic_form_original
         
         print(i)
 

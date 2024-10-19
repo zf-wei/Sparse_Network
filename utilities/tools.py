@@ -27,13 +27,13 @@ def to_networkx(graph):
 
     return G
 
-def euclid_membership(K, points):
+def get_euclid_membership(K, points):
     euc_kmeans = KMeans(n_clusters=K, n_init=10)
     euc_kmeans.fit(points)
     return euc_kmeans.labels_
 
 
-def cosine_membership(K, points):
+def get_cosine_membership(K, points):
     normalized_points = normalize(points)
     cos_kmeans = KMeans(n_clusters=K, n_init=10)
     cos_kmeans.fit(normalized_points)
@@ -44,8 +44,8 @@ def calculate_score(evala, intr_list, K):
     """Calculate scores for clustering using NMI and ECSim."""
     return_val = []
     intr_clus = Clustering({i: [intr_list[i]] for i in range(len(intr_list))})
-    evala_euclid_membership = euclid_membership(K, evala)
-    evala_cosine_membership = cosine_membership(K, evala)
+    evala_euclid_membership = get_euclid_membership(K, evala)
+    evala_cosine_membership = get_cosine_membership(K, evala)
 
     return_val.append(normalized_mutual_info_score(evala_euclid_membership, intr_list, average_method='arithmetic'))
     return_val.append(normalized_mutual_info_score(evala_cosine_membership, intr_list, average_method='arithmetic'))

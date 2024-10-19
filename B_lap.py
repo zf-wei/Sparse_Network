@@ -6,6 +6,7 @@ import numpy as np
 import networkx as nx
 import cupy as cp
 
+embedding_dim = 15
 
 sys.stdout.flush()
 
@@ -50,14 +51,20 @@ def community_detection(mu, graph_type, delete_type):
 
         A = nx.to_numpy_array(G_orig, nodelist=G_orig.nodes(), weight='weight', dtype=np.float64)
 
-        embedding = lap_cupy(G, K)
+        embedding = lap_cupy(G, embedding_dim)
 
-        detected_euclid_memberships.append(euclid_membership(K, embedding))
-        detected_cosine_memberships.append(cosine_membership(K, embedding))
+        detected_euclid_memberships.append(get_euclid_membership(K, embedding))
+        detected_cosine_memberships.append(get_cosine_membership(K, embedding))
 
         # Potential optimization of the quadratic form calculation using CuPy
-        quadratic_form = cp.sum(A * cp.sum((embedding[:, :, None] - embedding[:, None, :]) ** 2, axis=1))
-        raw_qf_mu[i] = quadratic_form
+        quadratic_form_original = 0
+        for k in range(embedding.shape[1]):
+            vk = embedding[:, k]
+            diff = vk[:, np.newaxis] - vk[np.newaxis, :]  # 创建一个差的矩阵
+            quadr = A * (diff ** 2)  # 使用广播计算二次项
+            quadratic_form_original += np.sum(quadr)  # 累加
+
+        raw_qf_mu[i] = quadratic_form_original
 
         print(i)
 

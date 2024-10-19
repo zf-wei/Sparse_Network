@@ -74,6 +74,7 @@ def gene_ppm_graph_mu(mu, sample_count=sample_count, output_dir='graph'):
 
         # Get intrinsic membership (community assignment)
         intrinsic_membership = list(nx.get_node_attributes(G, 'block').values())
+        intrinsic_membership = np.array(intrinsic_membership)
 
         # Append the graph and membership to the lists
         graphs.append(G)
