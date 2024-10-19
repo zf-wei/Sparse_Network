@@ -11,10 +11,10 @@ sys.stdout.flush()
 
 # 将子目录添加到 sys.path
 current_dir = os.getcwd()
-sys.path.append(os.path.join(os.path.join(current_dir),'EffectiveResistanceSampling'))
+sys.path.append(os.path.join(current_dir,'EffectiveResistanceSampling'))
 from EffectiveResistanceSampling.Network import *
 
-sys.path.append(os.path.join(os.path.join(current_dir),'utilities'))
+sys.path.append(os.path.join(current_dir,'utilities'))
 from utilities.tools import *
 
 def lap_cupy(graph, dim):
@@ -39,43 +39,62 @@ def community_detection(mu, graph_type, delete_type):
     sample  = len(graphs)
     detected_euclid_memberships = []
     detected_cosine_memberships = []
+    raw_qf_mu = np.zeros((sample))
 
     for i in range(sample):
         G = graphs[i]
         intrinsic_membership = memberships[i]
         K = len(np.unique(intrinsic_membership))
 
+        A = nx.to_numpy_array(G, nodelist=G.nodes(), weight='weight', dtype=np.float64)
+
         embedding = lap_cupy(G, K)
 
         detected_euclid_memberships.append(euclid_membership(K, embedding))
         detected_cosine_memberships.append(cosine_membership(K, embedding))
 
+        quadratic_form = 0
+        for k in range(embedding.shape[1]):
+            vk = embedding[:, k]
+            for s in range(A.shape[0]):
+                for t in range(A.shape[1]):
+                    quadr = A[s, t] * (vk[s] - vk[t]) ** 2
+                    quadratic_form += quadr
+        raw_qf_mu[i] = quadratic_form
+
         print(i)
 
-    # 创建 results 目录（如果不存在）
-    os.makedirs(f'community_detection_{delete_type}', exist_ok=True)
+        # 创建 community_detection 目录（如果不存在）
+    os.makedirs(f'communitydetection_{delete_type}', exist_ok=True)
 
     # Save memberships for this specific mu
     mu_str = f"{mu:.2f}"
-    output_dir = f'community_detection_{delete_type}'
-    raw_euclid_path = f'{output_dir}/{graph_type}_lap_euclid_mu{mu_str}.pkl'
+    output_dir = f'communitydetection_{delete_type}'
+    raw_euclid_path = f'{output_dir}/{graph_type}_{delete_type}_lap_euclid_mu{mu_str}.pkl'
     with open(raw_euclid_path, 'wb') as file:
         pickle.dump(detected_euclid_memberships, file)
     print(f"Euclid membership for mu={mu_str} saved to {raw_euclid_path}")
 
-    mu_str = f"{mu:.2f}"
-    raw_cosine_path = f'{output_dir}/{graph_type}_lap_cosine_mu{mu_str}.pkl'
+    raw_cosine_path = f'{output_dir}/{graph_type}_{delete_type}_lap_cosine_mu{mu_str}.pkl'
     with open(raw_cosine_path, 'wb') as file:
         pickle.dump(detected_cosine_memberships, file)
     print(f"Cosine membership for mu={mu_str} saved to {raw_cosine_path}")
 
+    os.makedirs(f'results_{delete_type}', exist_ok=True)
+    raw_qf_path = f'results_{delete_type}/{graph_type}_{delete_type}_lap_raw_qf_mu{mu_str}.pkl'
+    with open(raw_qf_path, 'wb') as file:
+        pickle.dump(raw_qf_mu, file)
+    print(f"RAW_QF for mu={mu_str} saved to {raw_qf_path}")
+
 
 def main():
     parser = argparse.ArgumentParser(description="Community detection on networks with different mu.")
-    parser.add_argument('--graph_type', type=str, choices=['ppm', 'lfr'], default='ppm', help="Random graph type (ppm or lfr)")
+    parser.add_argument('--graph_type', type=str, choices=['ppm', 'lfr'], default='ppm',
+                        help="Random graph type (ppm or lfr)")
     parser.add_argument('--start_step', type=float, default=0.05, help="start_step")
-    parser.add_argument('--delete_type', type=str, choices=['original', 'sparse', 'random'], help="Ways to delete edges (original, sparse, or random)")
-    
+    parser.add_argument('--delete_type', type=str, choices=['original', 'sparse', 'random'],
+                        help="Ways to delete edges (original, sparse, or random)")
+
     args = parser.parse_args()
     graph_type = args.graph_type
     start_step = args.start_step
@@ -89,12 +108,13 @@ def main():
     MU = np.around(np.arange(start_step, end_step + 0.01, step_size), decimals=2)
 
     print(MU)
-    
+
     print("程序已经在运行啦！")
 
     for mu in MU:
         community_detection(mu, graph_type, delete_type)
-                  
+
     print("All tasks completed")
+
 
 main()
