@@ -50,7 +50,7 @@ def generate_ppm(q, comm_size, deg_avg, mu):
     return G
 
 
-def gene_ppm_graph_mu(mu, sample_count=sample_count, output_dir='graph'):
+def gene_ppm_graph_mu(mu, sample_count=sample_count, output_dir='graph_original'):
     """
     Generates PPM graphs for a given mixing parameter (mu) and saves the graphs and memberships to a file.
 
@@ -91,7 +91,7 @@ def gene_ppm_graph_mu(mu, sample_count=sample_count, output_dir='graph'):
     with open(file_path, 'wb') as file:
         pickle.dump(combined_data, file)
 
-    print(f'Saved all graphs and memberships for mu={mu_str} to {file_path}')
+    print(f'Saved all generated graphs and memberships for mu={mu_str} to {file_path}')
 
 
 # Generate PPM graphs in parallel using ProcessPoolExecutor

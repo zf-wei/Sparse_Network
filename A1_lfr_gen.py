@@ -24,7 +24,7 @@ import networkx as nx
 from networkx.generators.community import LFR_benchmark_graph
 
 
-def gene_lfr_graph_mu(mu, sample_count=sample_count, output_dir='graph'):
+def gene_lfr_graph_mu(mu, sample_count=sample_count, output_dir='graph_original'):
     """
     Generates LFR benchmark graphs for a given mixing parameter (mu) and saves the graphs and memberships to a file.
 
@@ -75,7 +75,7 @@ def gene_lfr_graph_mu(mu, sample_count=sample_count, output_dir='graph'):
     with open(file_path, 'wb') as file:
         pickle.dump(combined_data, file)
 
-    print(f'Saved all graphs and memberships for mu={mu} to {file_path}')
+    print(f'Saved all generated graphs and memberships for mu={mu} to {file_path}')
 
 
 # Generate LFR graphs in parallel using ProcessPoolExecutor
