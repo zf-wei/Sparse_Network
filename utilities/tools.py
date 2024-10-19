@@ -74,3 +74,14 @@ def load_graph(mu, rg, delete_type='original'):
         return graphs, memberships  # Return both if memberships exist
     else:
         return graphs  # Return only graphs if memberships do not exist
+
+def load_graph_only(mu, rg, delete_type='original'):
+    mu_str = f"{mu:.2f}"
+    input_dir = f"graph_{delete_type}"
+    file_path = os.path.join(input_dir, f'{rg}_graph_{delete_type}_mu{mu_str}.pickle')
+
+    with open(file_path, 'rb') as file:
+        combined_data = pickle.load(file)
+
+    graphs = combined_data['graphs']
+    return graphs  # Return only graphs if memberships do not exist

@@ -35,7 +35,8 @@ def lap_cupy(graph, dim):
 
 def community_detection(mu, graph_type, delete_type):
     """Process a specific mixing parameter (mu) to do community detection."""
-    graphs, memberships  = load_graph(mu, graph_type, "original")
+    original_graphs, memberships  = load_graph(mu, graph_type, "original")
+    graphs = load_graph_only(mu, graph_type, delete_type)
     sample  = len(graphs)
     detected_euclid_memberships = []
     detected_cosine_memberships = []
@@ -43,23 +44,19 @@ def community_detection(mu, graph_type, delete_type):
 
     for i in range(sample):
         G = graphs[i]
+        G_orig = original_graphs[i]
         intrinsic_membership = memberships[i]
         K = len(np.unique(intrinsic_membership))
 
-        A = nx.to_numpy_array(G, nodelist=G.nodes(), weight='weight', dtype=np.float64)
+        A = nx.to_numpy_array(G_orig, nodelist=G_orig.nodes(), weight='weight', dtype=np.float64)
 
         embedding = lap_cupy(G, K)
 
         detected_euclid_memberships.append(euclid_membership(K, embedding))
         detected_cosine_memberships.append(cosine_membership(K, embedding))
 
-        quadratic_form = 0
-        for k in range(embedding.shape[1]):
-            vk = embedding[:, k]
-            for s in range(A.shape[0]):
-                for t in range(A.shape[1]):
-                    quadr = A[s, t] * (vk[s] - vk[t]) ** 2
-                    quadratic_form += quadr
+        # Potential optimization of the quadratic form calculation using CuPy
+        quadratic_form = cp.sum(A * cp.sum((embedding[:, :, None] - embedding[:, None, :]) ** 2, axis=1))
         raw_qf_mu[i] = quadratic_form
 
         print(i)
