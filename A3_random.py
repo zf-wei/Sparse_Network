@@ -9,7 +9,7 @@ from networkx.generators.community import LFR_benchmark_graph
 
 sys.stdout.flush()
 
-num_workers = 2#0
+num_workers = 5#0
 #sample_count = 3
 
 # 将子目录添加到 sys.path
@@ -20,8 +20,6 @@ from EffectiveResistanceSampling.Network import *
 
 sys.path.append(os.path.join(os.path.join(current_dir), 'utilities'))
 from utilities.tools import *
-
-
 
 def remove_edges_with_retry(graph, percentage):
     num_edges = graph.number_of_edges()
@@ -45,15 +43,15 @@ def remove_edges_with_retry(graph, percentage):
 
 def random_graph_mu(mu, graph_type, output_dir='graph_random'):
     """Process a specific mixing parameter (mu) to get graphs with some edges randomly deleted."""
-    graphs, memberships = load_graph(mu, graph_type)
-    sample = 3#len(graphs)
+    graphs, memberships = load_graph(mu, graph_type, "original")
+    sample = len(graphs)
 
     graph_random = []
 
     for i in range(sample):
         G = graphs[i]
 
-        G_random = remove_edges_with_retry(G)
+        G_random = remove_edges_with_retry(G, 0.1)
 
         graph_random.append(G_random)
 

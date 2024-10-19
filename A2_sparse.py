@@ -21,7 +21,7 @@ from utilities.tools import *
 
 def sparse_graph_mu(mu, graph_type, epsilon=0.1, output_dir='graph_sparse'):
     """Process a specific mixing parameter (mu) to get sparsed graphs."""
-    graphs, memberships = load_graph(mu, graph_type)
+    graphs, memberships = load_graph(mu, graph_type, "original")
     sample = len(graphs)
 
     graph_sparse = []

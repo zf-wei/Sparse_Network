@@ -70,7 +70,7 @@ def gene_lfr_graph_mu(mu, sample_count=sample_count, output_dir='graph'):
     }
 
     mu_str = f"{mu:.2f}"
-    file_path = os.path.join(output_dir, f'lfr_graph_mu{mu_str}.pickle')
+    file_path = os.path.join(output_dir, f'lfr_graph_original_mu{mu_str}.pickle')
     with open(file_path, 'wb') as file:
         pickle.dump(combined_data, file)
 

@@ -10,9 +10,9 @@ import clusim.sim as sim
 from clusim.clustering import Clustering
 
 # 获取当前目录的上一级目录
-parent_dir = os.path.abspath(os.path.join(os.getcwd(), '..'))
-sys.path.append(os.path.join(os.path.join(parent_dir),'EffectiveResistanceSampling'))
-from EffectiveResistanceSampling.Network import *
+# parent_dir = os.path.abspath(os.path.join(os.getcwd(), '..'))
+# sys.path.append(os.path.join(os.path.join(parent_dir),'EffectiveResistanceSampling'))
+# from EffectiveResistanceSampling.Network import *
 
 def to_networkx(graph):
     """Convert a graph to NetworkX format."""
@@ -59,9 +59,18 @@ def calculate_score(evala, intr_list, K):
     return return_val
 
 
-def load_graph(mu, rg, input_dir='graph'):
+def load_graph(mu, rg, delete_type='original'):
     mu_str = f"{mu:.2f}"
-    file_path = os.path.join(input_dir, f'{rg}_graph_mu{mu_str}.pickle')
+    input_dir = f"graph_{delete_type}"
+    file_path = os.path.join(input_dir, f'{rg}_graph_{delete_type}_mu{mu_str}.pickle')
+
     with open(file_path, 'rb') as file:
         combined_data = pickle.load(file)
-    return combined_data['graphs'], combined_data['memberships']
+
+    graphs = combined_data['graphs']
+    memberships = combined_data.get('memberships')  # Use .get() to avoid KeyError
+
+    if memberships is not None:
+        return graphs, memberships  # Return both if memberships exist
+    else:
+        return graphs  # Return only graphs if memberships do not exist

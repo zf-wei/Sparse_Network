@@ -17,7 +17,6 @@ from EffectiveResistanceSampling.Network import *
 sys.path.append(os.path.join(os.path.join(current_dir),'utilities'))
 from utilities.tools import *
 
-
 def lap_cupy(graph, dim):
     """Compute Laplacian embedding of a graph using CuPy."""
     assert isinstance(graph, nx.Graph), "Input graph must be a NetworkX graph."
@@ -34,90 +33,53 @@ def lap_cupy(graph, dim):
     return v[:, 1:(dim + 1)].get().real
 
 
-def comprehensive_process(mu, graph_type, epsilon=0.1):
-    """Process a specific mixing parameter (mu) to calculate scores and quadratic forms."""
-    graphs, memberships = load_graph(mu, graph_type)
+def community_detection(mu, graph_type, delete_type):
+    """Process a specific mixing parameter (mu) to do community detection."""
+    graphs, memberships  = load_graph(mu, graph_type, "original")
     sample  = len(graphs)
-    raw_score_mu = np.zeros((sample, 2, 4))
-    raw_qf_mu = np.zeros((sample, 2))
+    detected_euclid_memberships = []
+    detected_cosine_memberships = []
 
     for i in range(sample):
         G = graphs[i]
         intrinsic_membership = memberships[i]
         K = len(np.unique(intrinsic_membership))
 
-        edge_list = list(G.edges())
-        edge_list = np.array(edge_list)
+        embedding = lap_cupy(G, K)
 
-        edge_weights = nx.get_edge_attributes(G, 'weight')
-        edge_weights = np.array(edge_weights)
-        edge_weights = np.array([edge_weights[edge] if edge in edge_weights else 1 for edge in edge_list])
+        detected_euclid_memberships.append(euclid_membership(K, embedding))
+        detected_cosine_memberships.append(cosine_membership(K, embedding))
 
-
-
-        Gn = Network(edge_list, edge_weights)
-        Effective_R = Gn.effR(epsilon, 'spl')
-
-        while True:
-            Gn_Sparse = Gn.spl(10000, Effective_R, seed=2024) # 第一个参数是 q 是保留的边的数量
-            G_sparse = to_networkx(Gn_Sparse)
-            if nx.is_connected(G_sparse):
-                break
-
-        A = nx.to_numpy_array(G, nodelist=G.nodes(), weight='weight', dtype=np.float64)
-        embedding_sparse = lap_cupy(G_sparse, K)
-        embedding_original = lap_cupy(G, K)
-
-        score_sparse = calculate_score(embedding_sparse, intrinsic_membership, K)
-        raw_score_mu[i, 0] = score_sparse
-        quadratic_form_sparse = 0
-        for k in range(embedding_sparse.shape[1]):
-            vk = embedding_sparse[:, k]
-            for s in range(A.shape[0]):
-                for t in range(A.shape[1]):
-                    quadr = A[s, t] * (vk[s] - vk[t]) ** 2
-                    quadratic_form_sparse += quadr
-        raw_qf_mu[i,0] = quadratic_form_sparse
-        
-        score_original = calculate_score(embedding_original, intrinsic_membership, K)
-        raw_score_mu[i, 1] = score_original
-
-        quadratic_form_original = 0
-        for k in range(embedding_original.shape[1]):
-            vk = embedding_original[:, k]
-            for s in range(A.shape[0]):
-                for t in range(A.shape[1]):
-                    quadr = A[s, t] * (vk[s] - vk[t]) ** 2
-                    quadratic_form_original += quadr
-            
-        raw_qf_mu[i,1] = quadratic_form_original
-        
         print(i)
 
     # 创建 results 目录（如果不存在）
-    os.makedirs('results', exist_ok=True)
+    os.makedirs(f'community_detection_{delete_type}', exist_ok=True)
 
-    # Save results for this specific mu
+    # Save memberships for this specific mu
     mu_str = f"{mu:.2f}"
-    raw_score_path = f'results/{graph_type}_lap_raw_score_mu{mu_str}.pkl'
-    with open(raw_score_path, 'wb') as file:
-        pickle.dump(raw_score_mu, file)
-    print(f"RAW_SCORE for mu={mu_str} saved to {raw_score_path}")
+    output_dir = f'community_detection_{delete_type}'
+    raw_euclid_path = f'{output_dir}/{graph_type}_lap_euclid_mu{mu_str}.pkl'
+    with open(raw_euclid_path, 'wb') as file:
+        pickle.dump(detected_euclid_memberships, file)
+    print(f"Euclid membership for mu={mu_str} saved to {raw_euclid_path}")
 
-    raw_qf_path = f'results/{graph_type}_lap_raw_qf_mu{mu_str}.pkl'
-    with open(raw_qf_path, 'wb') as file:
-        pickle.dump(raw_qf_mu, file)
-    print(f"RAW_QF for mu={mu_str} saved to {raw_qf_path}")
+    mu_str = f"{mu:.2f}"
+    raw_cosine_path = f'{output_dir}/{graph_type}_lap_cosine_mu{mu_str}.pkl'
+    with open(raw_cosine_path, 'wb') as file:
+        pickle.dump(detected_cosine_memberships, file)
+    print(f"Cosine membership for mu={mu_str} saved to {raw_cosine_path}")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Community detection on sparse and original networks.")
+    parser = argparse.ArgumentParser(description="Community detection on networks with different mu.")
     parser.add_argument('--graph_type', type=str, choices=['ppm', 'lfr'], default='ppm', help="Random graph type (ppm or lfr)")
     parser.add_argument('--start_step', type=float, default=0.05, help="start_step")
+    parser.add_argument('--delete_type', type=str, choices=['original', 'sparse', 'random'], help="Ways to delete edges (original, sparse, or random)")
     
     args = parser.parse_args()
     graph_type = args.graph_type
     start_step = args.start_step
+    delete_type = args.delete_type
 
     if graph_type == "ppm":
         end_step = 0.9
@@ -131,10 +93,8 @@ def main():
     print("程序已经在运行啦！")
 
     for mu in MU:
-        comprehensive_process(mu, graph_type)
+        community_detection(mu, graph_type, delete_type)
                   
-
     print("All tasks completed")
-
 
 main()
