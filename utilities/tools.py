@@ -41,7 +41,7 @@ def load_graph(mu, rg, delete_type, percent):
     mu_str = f"{mu:.2f}"
     if delete_type == "original":
         input_dir = f"graph_{delete_type}"
-    elif:
+    else:
         input_dir = f"graph_{delete_type}_{percent}"
     file_path = os.path.join(input_dir, f'{rg}_graph_{delete_type}_mu{mu_str}.pickle')
 
@@ -60,7 +60,7 @@ def load_graph_only(mu, rg, delete_type, percent):
     mu_str = f"{mu:.2f}"
     if delete_type == "original":
         input_dir = f"graph_{delete_type}"
-    elif:
+    else:
         input_dir = f"graph_{delete_type}_{percent}"
     file_path = os.path.join(input_dir, f'{rg}_graph_{delete_type}_mu{mu_str}.pickle')
 

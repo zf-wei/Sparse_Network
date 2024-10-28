@@ -43,8 +43,8 @@ def remove_edges_with_retry(graph, percentage):
 
 def random_graph_mu(mu, graph_type, percent):# output_dir=f'graph_random_{percent}'):
     """Process a specific mixing parameter (mu) to get graphs with some edges randomly deleted."""
-    output_dir = f'graph_random_{percent}
-    graphs = load_graph_only(mu, graph_type, "original")
+    output_dir = f'graph_random_{percent}'
+    graphs = load_graph_only(mu, graph_type, "original", percent)
     sample = len(graphs)
 
     graph_random = []
@@ -95,7 +95,7 @@ if __name__ == "__main__":
 
 
     def process_mu(mu):
-        return random_graph_mu(mu, graph_type)
+        return random_graph_mu(mu, graph_type, percent)
 
     with ProcessPoolExecutor(max_workers=num_workers) as executor:
         results = list(executor.map(process_mu, MU))

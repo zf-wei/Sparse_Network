@@ -22,7 +22,7 @@ from utilities.tools import *
 def sparse_graph_mu(mu, graph_type, percent, epsilon=0.1):#, output_dir='graph_sparse'):
     output_dir = f'graph_sparse_{percent}'
     """Process a specific mixing parameter (mu) to get sparsed graphs."""
-    graphs = load_graph_only(mu, graph_type, "original")
+    graphs = load_graph_only(mu, graph_type, "original", percent)
     sample = len(graphs)
     if percent == 0.9:
         q_values = {"lfr": 46000, "ppm": 30000}
