@@ -5,6 +5,8 @@ import pickle
 import numpy as np
 import networkx as nx
 
+embedding_dim = 16
+
 sys.stdout.flush()
 
 # 将子目录添加到 sys.path
@@ -19,11 +21,11 @@ from utilities.tools import *
 from node2vec import Node2Vec
 
     
-embedding_dim = 15
+
 walk_length=40
+window=10 
 num_walks=80
 workers=16
-window=10 
 min_count=1 
 batch_words=6192
 

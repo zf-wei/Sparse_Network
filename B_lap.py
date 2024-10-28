@@ -6,7 +6,7 @@ import numpy as np
 import networkx as nx
 import cupy as cp
 
-embedding_dim = 15
+embedding_dim = 16
 
 sys.stdout.flush()
 
@@ -66,7 +66,7 @@ def community_detection(mu, graph_type, delete_type):
 
         raw_qf_mu[i] = quadratic_form_original
 
-        print(i)
+        print(mu, i)
 
         # 创建 community_detection 目录（如果不存在）
     os.makedirs(f'communitydetection_{delete_type}', exist_ok=True)
