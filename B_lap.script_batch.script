@@ -12,20 +12,20 @@
 #SBATCH --gres=gpu:1                        # 每个节点使用1个GPU
 #SBATCH -A ascr_dpdf                        # 指定账户
 #SBATCH --time=1:00:00                      # Time limit hrs:min:sec
-#SBATCH --array=0-5                         # 数组任务索引
+#SBATCH --array=0-3                         # 数组任务索引
 
 # 加载 Python 环境
 source /share/apps/python/miniconda4.12/etc/profile.d/conda.sh
 conda activate iub  # 激活名为 "iub" 的 Conda 环境
 
 # 定义图类型和删除类型的数组
-graph_types=("lfr" "lfr" "lfr" "ppm" "ppm" "ppm")
-delete_types=("original" "random" "sparse" "original" "random" "sparse")
+graph_types=("lfr" "lfr" "ppm" "ppm")
+delete_types=("random" "sparse" "random" "sparse")
 
 # 获取当前任务的参数组合
 graph_type=${graph_types[$SLURM_ARRAY_TASK_ID]}
 delete_type=${delete_types[$SLURM_ARRAY_TASK_ID]}
 
 echo "Running with --graph_type=${graph_type} --delete_type=${delete_type}"
-srun --unbuffered python B_lap.py --graph_type "$graph_type" --delete_type "$delete_type"
+srun --unbuffered python B_lap.py --graph_type "$graph_type" --delete_type "$delete_type" --percent 0.6
 echo "任务完成: --graph_type=${graph_type}, --delete_type=${delete_type}"

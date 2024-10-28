@@ -1,0 +1,30 @@
+#!/bin/bash
+
+#SBATCH --job-name=n2v_embedding            # 任务名称
+#SBATCH --partition=slurm            # 分区
+#SBATCH --output=B_n2v_output_%A_%a.txt     # 标准输出文件
+#SBATCH --error=B_n2v_error_%A_%a.txt       # 错误输出文件
+#SBATCH --mail-type=ALL                     # 邮件通知类型
+#SBATCH --mail-user=zfwei@pnnl.gov          # 邮件通知接收者
+#SBATCH --nodes=1                           # 使用1个节点
+#SBATCH --ntasks-per-node=1                 # 每个节点执行1个任务
+#SBATCH --cpus-per-task=1                   # 每个任务使用1个CPU
+#SBATCH -A ascr_dpdf                        # 指定账户
+#SBATCH --time=32:00:00                      # Time limit hrs:min:sec
+#SBATCH --array=0-5                         # 数组任务索引
+
+# 加载 Python 环境
+source /share/apps/python/miniconda4.12/etc/profile.d/conda.sh
+conda activate iub  # 激活名为 "iub" 的 Conda 环境
+
+# 定义图类型和删除类型的数组
+graph_types=("lfr" "lfr" "lfr" "ppm" "ppm" "ppm")
+delete_types=("original" "random" "sparse" "original" "random" "sparse")
+
+# 获取当前任务的参数组合
+graph_type=${graph_types[$SLURM_ARRAY_TASK_ID]}
+delete_type=${delete_types[$SLURM_ARRAY_TASK_ID]}
+
+echo "Running with --graph_type=${graph_type} --delete_type=${delete_type}"
+srun --unbuffered python B_n2v.py --graph_type "$graph_type" --delete_type "$delete_type" --percent
+echo "任务完成: --graph_type=${graph_type}, --delete_type=${delete_type}"

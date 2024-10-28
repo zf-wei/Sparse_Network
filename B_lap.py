@@ -73,8 +73,8 @@ def community_detection(mu, graph_type, delete_type, percent):
     if delete_type == "original":
         cd_output_dir = f'communitydetection_{delete_type}'
     else:
-        cd_output_dir = f'communitydetection_{delete_type}_percent'
-    os.makedirs(output_dir, exist_ok=True)
+        cd_output_dir = f'communitydetection_{delete_type}_{percent}'
+    os.makedirs(cd_output_dir, exist_ok=True)
 
     # Save memberships for this specific mu
     mu_str = f"{mu:.2f}"
@@ -91,7 +91,7 @@ def community_detection(mu, graph_type, delete_type, percent):
     if delete_type == "original":
         result_output_dir = f'results_{delete_type}'
     else:
-        result_output_dir = f'results_{delete_type}_percent'
+        result_output_dir = f'results_{delete_type}_{percent}'
     os.makedirs(result_output_dir, exist_ok=True)
     raw_qf_path = f'{result_output_dir}/{graph_type}_{delete_type}_lap_raw_qf_mu{mu_str}.pkl'
     with open(raw_qf_path, 'wb') as file:

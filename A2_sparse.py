@@ -27,8 +27,7 @@ def sparse_graph_mu(mu, graph_type, percent, epsilon=0.1):#, output_dir='graph_s
     if percent == 0.9:
         q_values = {"lfr": 46000, "ppm": 30000}
     elif percent == 0.6:
-        q_values = {"lfr": 46000, "ppm": 30000} ### UNDER CONSTRUCTION!!!!!!!!!!
-
+        q_values = {"lfr": 18000, "ppm": 12000} 
     graph_sparse = []
 
     for i in range(sample):
