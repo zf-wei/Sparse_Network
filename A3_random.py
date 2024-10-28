@@ -41,8 +41,9 @@ def remove_edges_with_retry(graph, percentage):
         if nx.is_connected(temp_graph):
             return temp_graph  # 返回连通的图
 
-def random_graph_mu(mu, graph_type, output_dir='graph_random'):
+def random_graph_mu(mu, graph_type, percent):# output_dir=f'graph_random_{percent}'):
     """Process a specific mixing parameter (mu) to get graphs with some edges randomly deleted."""
+    output_dir = f'graph_random_{percent}
     graphs = load_graph_only(mu, graph_type, "original")
     sample = len(graphs)
 
@@ -51,7 +52,7 @@ def random_graph_mu(mu, graph_type, output_dir='graph_random'):
     for i in range(sample):
         G = graphs[i]
 
-        G_random = remove_edges_with_retry(G, 0.1)
+        G_random = remove_edges_with_retry(G, 1-percent)
 
         graph_random.append(G_random)
 
@@ -76,12 +77,14 @@ from concurrent.futures import ProcessPoolExecutor
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Delete some edges randomly from graph.")
     parser.add_argument('--graph_type', type=str, choices=['ppm', 'lfr'], default='ppm',
-                        help="Random graph type (ppm or lfr)")
-    parser.add_argument('--start_step', type=float, default=0.05, help="start_step")
+                        help="Random graph type (ppm or lfr).")
+    parser.add_argument('--percent', type=float, help="Percentage of edges to keep.")
+    parser.add_argument('--start_step', type=float, default=0.05, help="start_step.")
 
     args = parser.parse_args()
     graph_type = args.graph_type
     start_step = args.start_step
+    percent = args.percent
 
     if graph_type == "ppm":
         end_step = 0.9

@@ -34,10 +34,10 @@ def lap_cupy(graph, dim):
     return v[:, 1:(dim + 1)].get().real
 
 
-def community_detection(mu, graph_type, delete_type):
+def community_detection(mu, graph_type, delete_type, percent):
     """Process a specific mixing parameter (mu) to do community detection."""
-    original_graphs, memberships  = load_graph(mu, graph_type, "original")
-    graphs = load_graph_only(mu, graph_type, delete_type)
+    original_graphs, memberships  = load_graph(mu, graph_type, "original", percent)
+    graphs = load_graph_only(mu, graph_type, delete_type, percent)
     sample  = len(graphs)
     detected_euclid_memberships = []
     detected_cosine_memberships = []
@@ -69,23 +69,31 @@ def community_detection(mu, graph_type, delete_type):
         print(mu, i)
 
         # 创建 community_detection 目录（如果不存在）
-    os.makedirs(f'communitydetection_{delete_type}', exist_ok=True)
+
+    if delete_type == "original":
+        cd_output_dir = f'communitydetection_{delete_type}'
+    elif:
+        cd_output_dir = f'communitydetection_{delete_type}_percent'
+    os.makedirs(output_dir, exist_ok=True)
 
     # Save memberships for this specific mu
     mu_str = f"{mu:.2f}"
-    output_dir = f'communitydetection_{delete_type}'
-    raw_euclid_path = f'{output_dir}/{graph_type}_{delete_type}_lap_euclid_mu{mu_str}.pkl'
+    raw_euclid_path = f'{cd_output_dir}/{graph_type}_{delete_type}_lap_euclid_mu{mu_str}.pkl'
     with open(raw_euclid_path, 'wb') as file:
         pickle.dump(detected_euclid_memberships, file)
     print(f"Euclid membership for mu={mu_str} saved to {raw_euclid_path}")
 
-    raw_cosine_path = f'{output_dir}/{graph_type}_{delete_type}_lap_cosine_mu{mu_str}.pkl'
+    raw_cosine_path = f'{cd_output_dir}/{graph_type}_{delete_type}_lap_cosine_mu{mu_str}.pkl'
     with open(raw_cosine_path, 'wb') as file:
         pickle.dump(detected_cosine_memberships, file)
     print(f"Cosine membership for mu={mu_str} saved to {raw_cosine_path}")
 
-    os.makedirs(f'results_{delete_type}', exist_ok=True)
-    raw_qf_path = f'results_{delete_type}/{graph_type}_{delete_type}_lap_raw_qf_mu{mu_str}.pkl'
+    if delete_type == "original":
+        result_output_dir = f'results_{delete_type}'
+    elif:
+        result_output_dir = f'results_{delete_type}_percent'
+    os.makedirs(result_output_dir, exist_ok=True)
+    raw_qf_path = f'{result_output_dir}/{graph_type}_{delete_type}_lap_raw_qf_mu{mu_str}.pkl'
     with open(raw_qf_path, 'wb') as file:
         pickle.dump(raw_qf_mu, file)
     print(f"RAW_QF for mu={mu_str} saved to {raw_qf_path}")
@@ -98,11 +106,13 @@ def main():
     parser.add_argument('--start_step', type=float, default=0.05, help="start_step")
     parser.add_argument('--delete_type', type=str, choices=['original', 'sparse', 'random'],
                         help="Ways to delete edges (original, sparse, or random)")
+    parser.add_argument('--percent', type=float, help="Percentage of edges to keep.")
 
     args = parser.parse_args()
     graph_type = args.graph_type
     start_step = args.start_step
     delete_type = args.delete_type
+    percent = args.percent
 
     if graph_type == "ppm":
         end_step = 0.9
@@ -116,7 +126,7 @@ def main():
     print("程序已经在运行啦！")
 
     for mu in MU:
-        community_detection(mu, graph_type, delete_type)
+        community_detection(mu, graph_type, delete_type, percent)
 
     print("All tasks completed")
 

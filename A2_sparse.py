@@ -19,11 +19,15 @@ sys.path.append(os.path.join(os.path.join(current_dir), 'utilities'))
 from utilities.tools import *
 
 
-def sparse_graph_mu(mu, graph_type, epsilon=0.1, output_dir='graph_sparse'):
+def sparse_graph_mu(mu, graph_type, percent, epsilon=0.1):#, output_dir='graph_sparse'):
+    output_dir = f'graph_sparse_{percent}'
     """Process a specific mixing parameter (mu) to get sparsed graphs."""
     graphs = load_graph_only(mu, graph_type, "original")
     sample = len(graphs)
-    q_values = {"lfr": 46000, "ppm": 30000}
+    if percent == 0.9:
+        q_values = {"lfr": 46000, "ppm": 30000}
+    elif percent == 0.6:
+        q_values = {"lfr": 46000, "ppm": 30000} ### UNDER CONSTRUCTION!!!!!!!!!!
 
     graph_sparse = []
 
@@ -71,11 +75,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Get a sparse version of the graph.")
     parser.add_argument('--graph_type', type=str, choices=['ppm', 'lfr'], default='ppm',
                         help="Random graph type (ppm or lfr)")
+    parser.add_argument('--percent', type=float, help="Percentage of edges to keep.")
     parser.add_argument('--start_step', type=float, default=0.05, help="start_step")
 
     args = parser.parse_args()
     graph_type = args.graph_type
     start_step = args.start_step
+    percent = args.percent
 
     if graph_type == "ppm":
         end_step = 0.9
@@ -86,7 +92,7 @@ if __name__ == "__main__":
 
 
     def process_mu(mu):
-        return sparse_graph_mu(mu, graph_type)
+        return sparse_graph_mu(mu, graph_type, percent)
 
     with ProcessPoolExecutor(max_workers=num_workers) as executor:
         results = list(executor.map(process_mu, MU))

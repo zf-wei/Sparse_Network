@@ -37,9 +37,12 @@ def get_cosine_membership(K, points):
     return cos_kmeans.labels_
 
 
-def load_graph(mu, rg, delete_type='original'):
+def load_graph(mu, rg, delete_type, percent):
     mu_str = f"{mu:.2f}"
-    input_dir = f"graph_{delete_type}"
+    if delete_type == "original":
+        input_dir = f"graph_{delete_type}"
+    elif:
+        input_dir = f"graph_{delete_type}_{percent}"
     file_path = os.path.join(input_dir, f'{rg}_graph_{delete_type}_mu{mu_str}.pickle')
 
     with open(file_path, 'rb') as file:
@@ -53,9 +56,12 @@ def load_graph(mu, rg, delete_type='original'):
     else:
         return graphs  # Return only graphs if memberships do not exist
 
-def load_graph_only(mu, rg, delete_type='original'):
+def load_graph_only(mu, rg, delete_type, percent):
     mu_str = f"{mu:.2f}"
-    input_dir = f"graph_{delete_type}"
+    if delete_type == "original":
+        input_dir = f"graph_{delete_type}"
+    elif:
+        input_dir = f"graph_{delete_type}_{percent}"
     file_path = os.path.join(input_dir, f'{rg}_graph_{delete_type}_mu{mu_str}.pickle')
 
     with open(file_path, 'rb') as file:
