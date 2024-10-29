@@ -1,0 +1,30 @@
+#!/bin/bash
+
+#SBATCH --job-name=graph_sparse             # 任务名称
+#SBATCH --partition=slurm                         # 分区
+#SBATCH --output=A2_sparse_%j.txt        # 标准输出文件
+#SBATCH --error=A2_sparse_%j.txt          # 错误输出文件
+#SBATCH --mail-type=ALL                           # 邮件通知类型
+#SBATCH --mail-user=zfwei@pnnl.gov                # 邮件通知接收者
+#SBATCH --nodes=1                                 # 使用1个节点
+#SBATCH --ntasks-per-node=1                       # 每个节点执行1个任务
+#SBATCH --cpus-per-task=2                        # 每个任务使用16个CPU 
+#SBATCH -t 1:00:00                               # 任务最长执行时间为2小时
+#SBATCH -A br25_weiz828                              # 指定账户
+#SBATCH --array=0-1                         # 数组任务索引
+
+# 加载 Python 环境
+source /share/apps/python/miniconda4.12/etc/profile.d/conda.sh
+conda activate iub  # 激活相关Conda 环境
+
+# 定义图类型和删除类型的数组
+graph_types=("lfr" "ppm")
+
+# 获取当前任务的参数组合
+graph_type=${graph_types[$SLURM_ARRAY_TASK_ID]}
+
+# 运行 Python 脚本
+
+echo "this is a flag"
+srun --unbuffered python A2_sparse.py --graph_type "$graph_type" --percent 0.6
+echo "运行完了"

@@ -19,5 +19,5 @@ conda activate iub  # 激活相关Conda 环境
 # 运行 Python 脚本
 
 echo "this is a flag"
-srun --unbuffered python A2_sparse.py --graph_type 'lfr' --percent 0.6
+srun --unbuffered python A2_sparse.py --graph_type 'ppm' --percent 0.6
 echo "运行完了"

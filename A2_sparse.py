@@ -19,7 +19,7 @@ sys.path.append(os.path.join(os.path.join(current_dir), 'utilities'))
 from utilities.tools import *
 
 
-def sparse_graph_mu(mu, graph_type, percent, epsilon=0.1):#, output_dir='graph_sparse'):
+def sparse_graph_mu(mu, graph_type, percent, epsilon=0.01):#, output_dir='graph_sparse'):
     output_dir = f'graph_sparse_{percent}'
     """Process a specific mixing parameter (mu) to get sparsed graphs."""
     graphs = load_graph_only(mu, graph_type, "original", percent)
@@ -41,10 +41,10 @@ def sparse_graph_mu(mu, graph_type, percent, epsilon=0.1):#, output_dir='graph_s
         edge_weights = np.array([edge_weights[edge] if edge in edge_weights else 1 for edge in edge_list])
 
         Gn = Network(edge_list, edge_weights)
-        Effective_R = Gn.effR(epsilon, 'spl')
+        Effective_R = Gn.effR(epsilon, 'kts')
 
         while True:
-            Gn_Sparse = Gn.spl(q_values[graph_type], Effective_R, seed=2024)  # 第一个参数是 q 是边有放回抽样的数量
+            Gn_Sparse = Gn.spl(q_values[graph_type], Effective_R, seed=7)  # 第一个参数是 q 是边有放回抽样的数量
             G_sparse = to_networkx(Gn_Sparse)
             if nx.is_connected(G_sparse):
                 break
