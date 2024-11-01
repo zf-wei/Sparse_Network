@@ -26,5 +26,5 @@ graph_type=${graph_types[$SLURM_ARRAY_TASK_ID]}
 delete_type=${delete_types[$SLURM_ARRAY_TASK_ID]}
 
 echo "Running with --graph_type=${graph_type} --delete_type=${delete_type}"
-srun --unbuffered python B_n2v.py --graph_type "$graph_type" --delete_type "$delete_type" --percent
+srun --unbuffered python B_n2v.py --graph_type "$graph_type" --delete_type "$delete_type" --percent 0.9
 echo "任务完成: --graph_type=${graph_type}, --delete_type=${delete_type}"
