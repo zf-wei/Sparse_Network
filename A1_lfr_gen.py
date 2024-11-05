@@ -98,7 +98,7 @@ if __name__ == "__main__":
         tau2 = 1.1  # Power-law exponent for the community size distribution
         avg_deg = 25  # Average Degree
         max_deg = int(0.1 * n)  # Max Degree
-        min_commu = 200  # Min Community Size
+        min_commu = 400  # Min Community Size
         max_commu = int(0.1 * n)  # Max Community Size
 
     num_workers = num_processor  # 指定 worker 的数量
