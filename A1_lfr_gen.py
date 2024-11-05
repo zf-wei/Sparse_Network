@@ -8,15 +8,6 @@ step_total = 10
 step_size = 0.05
 MU = np.around(np.arange(step_size, step_size * step_total + 0.01, step_size), decimals=2)
 
-# Specify Parameters
-n = 1000
-tau1 = 2  # Power-law exponent for the degree distribution
-tau2 = 1.1  # Power-law exponent for the community size distribution
-avg_deg = 25  # Average Degree
-max_deg = int(0.1 * n)  # Max Degree
-min_commu = 60  # Min Community Size
-max_commu = int(0.1 * n)  # Max Community Size
-
 
 import os
 import pickle
@@ -71,6 +62,10 @@ def gene_lfr_graph_mu(mu, sample_count=sample_count, output_dir='graph_original'
     }
 
     mu_str = f"{mu:.2f}"
+    if graph_size == 1000:
+        output_dir = "K"+ output_dir
+    elif graph_size == 10000:
+        output_dir = "W"+ output_dir
     file_path = os.path.join(output_dir, f'lfr_graph_original_mu{mu_str}.pickle')
     with open(file_path, 'wb') as file:
         pickle.dump(combined_data, file)
@@ -80,8 +75,32 @@ def gene_lfr_graph_mu(mu, sample_count=sample_count, output_dir='graph_original'
 
 # Generate LFR graphs in parallel using ProcessPoolExecutor
 from concurrent.futures import ProcessPoolExecutor
+import argparse
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Get a sparse version of the graph.")
+    parser.add_argument('--graph_size', type=int, choices=[1000, 10000], default=1000,
+                        help="Set the size of the generated graph (1000 or 10000)")
+    args = parser.parse_args()
+    graph_size = args.graph_size
+    # Specify Parameters
+    if graph_size == 1000:
+        n = 1000
+        tau1 = 2  # Power-law exponent for the degree distribution
+        tau2 = 1.1  # Power-law exponent for the community size distribution
+        avg_deg = 25  # Average Degree
+        max_deg = int(0.1 * n)  # Max Degree
+        min_commu = 60  # Min Community Size
+        max_commu = int(0.1 * n)  # Max Community Size
+    elif graph_size == 10000:
+        n = 10000
+        tau1 = 2  # Power-law exponent for the degree distribution
+        tau2 = 1.1  # Power-law exponent for the community size distribution
+        avg_deg = 25  # Average Degree
+        max_deg = int(0.1 * n)  # Max Degree
+        min_commu = 200  # Min Community Size
+        max_commu = int(0.1 * n)  # Max Community Size
+
     num_workers = num_processor  # 指定 worker 的数量
     with ProcessPoolExecutor(max_workers=num_workers) as executor:
         results = list(executor.map(gene_lfr_graph_mu, MU))
