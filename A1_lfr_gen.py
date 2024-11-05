@@ -24,8 +24,6 @@ def gene_lfr_graph_mu(mu, sample_count=sample_count, output_dir='graph_original'
         sample_count (int): Number of graph samples to generate.
         output_dir (str): Directory where the generated graphs and memberships are saved.
     """
-    # Create the output directory if it doesn't exist
-    os.makedirs(output_dir, exist_ok=True)
 
     graphs = []
     memberships = []
@@ -66,6 +64,10 @@ def gene_lfr_graph_mu(mu, sample_count=sample_count, output_dir='graph_original'
         output_dir = "K"+ output_dir
     elif graph_size == 10000:
         output_dir = "W"+ output_dir
+
+    # Create the output directory if it doesn't exist
+    os.makedirs(output_dir, exist_ok=True)
+    
     file_path = os.path.join(output_dir, f'lfr_graph_original_mu{mu_str}.pickle')
     with open(file_path, 'wb') as file:
         pickle.dump(combined_data, file)
